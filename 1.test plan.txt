@@ -1,0 +1,97 @@
+Введение
+
+    План тестирования Ajenti core 2.1.36 веб интерфейса \
+                   администрирования операционной системы
+
+
+Объект тестирования
+
+        Ajenti panel
+
+    в условиях:
+        OS Ubutnu 20.04.1 witch last updates (core Linux 5.4.0.48-geberic)
+        Software: Ajenti core 2.1.36
+        ...
+
+    под логином:
+        root   password: qwerty
+        qwerty password: qwerty
+
+    на хосте:
+        qwerty
+
+    в локали:
+        en
+
+    в интерфейсе:
+        Firefox web browser for Linux
+        Chromium web browser for Linux
+
+    по адресу:
+        192.168.122.181:8000
+
+
+Тестируется
+
+    веб интерфейс:
+        Открытие панели
+        Хедер #навбар
+        Тело #контент
+            Система логина
+        Меню + пункты к плагинам
+        Тело #контент
+            Dashboard
+
+        Функциональные элементы + плагины
+            General
+                Dashboard
+                Plugins
+                Settings
+                Users
+            Tools
+                File Manager
+                Notepad
+                Terminal
+            Software
+                Services
+                    System V
+                    systemd
+            System
+                Date & time
+                Network
+                Packages
+                    APT
+                    PIP
+                Power
+
+
+Способ
+
+    Ручное тестирование
+        -
+        -
+        -
+        -
+
+    Авто тестирование
+        -
+
+    Авто тестирование с визуальным контролем?
+        - функциональное тестирование +
+        - тестирование интерфейса
+
+
+Последовательность
+
+    Подготовка
+        Создание виртуального окружения
+        Напсиание кейсов
+
+    Тестирование
+
+    Результаты
+
+
+Критерии
+
+    Написать что то умное.
