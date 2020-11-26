@@ -1,0 +1,10 @@
+[Unit]
+Description = Ajenti panel
+
+[Service]
+ExecStart = /usr/local/bin/ajenti-panel -d
+Type = simple
+Restart = on-failure
+
+[Install]
+WantedBy = multi-user.target
