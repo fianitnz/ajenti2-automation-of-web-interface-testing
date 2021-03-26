@@ -6,29 +6,69 @@
 
 Объект тестирования
 
-        Ajenti panel
+    Ajenti panel
 
     в условиях:
         OS Ubutnu 20.04.1 witch last updates (core Linux 5.4.0.48-geberic)
         Software: Ajenti core 2.1.36
         ...
 
-    под логином:
-        root   password: qwerty
-        qwerty password: qwerty
-
-    на хосте:
-        qwerty
-
-    в локали:
-        en
-
     в интерфейсе:
         Firefox web browser for Linux
         Chromium web browser for Linux
 
+    при размере окна:
+        640x480
+        800x600
+        1024x786
+        1280x720
+        1600x1200
+
+        480x640
+        786x1024
+        800x1280
+        1200x1600
+
+    по протоколу:
+        http://
+        https://
+
     по адресу:
         192.168.122.181:8000
+
+    на хосте:
+        qwerty
+
+    под логином:
+        root   password: qwerty
+        qwerty password: qwerty
+
+    в локали:
+        en
+
+
+Инструментарий
+
+    Python
+        версия
+
+        lib
+            Selenium for Python
+            pixelmatch
+
+        lib deprecated
+            imgdiff
+                версия
+
+    Selenium
+        версия
+
+Структура каталогов
+
+    screenshots
+        windows_size "1024x786"
+            data&time "%Y-%m-%d_%H:%M:%S"
+                file = "1.1"
 
 
 Тестируется
@@ -64,6 +104,14 @@
                     PIP
                 Power
 
+    элементы веб интерфейса
+        ссылка
+            Текст ссылки
+            Адрес ссылки
+            Ссылка без курсора
+            Ссылка с курсором
+            ?Тип курсора?
+            ?Адес после перехода?
 
 Способ
 
@@ -94,4 +142,4 @@
 
 Критерии
 
-    Написать что то умное.
+    Написать что то умное
