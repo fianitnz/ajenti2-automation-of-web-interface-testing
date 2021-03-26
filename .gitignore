@@ -1,3 +1,7 @@
+# Folder
+__pycache__/
+tmp/
+
 # Compiled Python bytecode
 *.py[cod]
 
