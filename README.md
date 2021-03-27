@@ -1,20 +1,20 @@
 ## Основные файлы автоматизации:
 
-    `test_autotest.py` (Основной модуль, структурированный
-        для последующего разбития на модули.)
-    `screenshots_diff.py` (Модуль сравнения скриншотов
-        и запускаемого в отдельном процессе)
+`test_autotest.py` (Основной модуль, структурированный
+    для последующего разбития на модули.)
+`screenshots_diff.py` (Модуль сравнения скриншотов
+    и запускаемого в отдельном процессе)
 
 `test.py` (Черновик)
 
 ## Использованы инструменты:
-    * Python
-        lib:
-            * selenium webdriver
-            * pixelmatch-py
-            * multiprocessing
+* Python
+    + lib:
+        * selenium webdriver
+        * pixelmatch-py
+        * multiprocessing
 
-    * Selenium WebDriver
+* Selenium WebDriver
 
 Окружение запускается на KVM в ручную.
     Использован Packer для автосборки образа VM без установки панели.
