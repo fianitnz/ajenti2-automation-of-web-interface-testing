@@ -26,3 +26,71 @@ Code road
 Test case road
     проверить сохранение последнего места в адресной строке при разлогине \
     для "всех" мест
+
+
+# #############################################################################
+#
+# Bugs
+#
+# #############################################################################
+Name: Firefox webdriver error screenshot element
+    In: Field user and password, Test content login 1.2
+    Status: Open
+    Важность: Low
+    From: Tester
+    To: Tester
+    Id: 1
+
+    Description:
+        Скриншот элемента "поле ввода username" создается со смещением в 1px \
+            вверх и 1px влево.
+
+        В браузере Chrome ошибка отсутствует.
+        В браузере Firefox воспроизводится только при текущей верстке.
+        При повторении шаблона страницы логина на голом html, 2 input и \
+            1 link(button Log in) ошибка не воспроизводится.
+
+        Возможна ошибка как webdriver так и ошибка верстки.
+        Требует перепроверки причин. Требуется консультация с верстальщиком \
+            для локализации проблемы.
+
+
+Name: Firefox webdriver error Shift+Tab navigation
+    In: Field user, password, and button Log in. Test content login 1.2
+    Status: Open
+    Важность: Low
+    From: Tester
+    To: Tester
+    Id: 2
+
+    Description:
+        Ошибка переключения выбора по Shift+Tab через webdriver. При этом Tab \
+            работает.
+
+        Ошибка не воспроизовдится при ручном тестировании, и в брузере Chrome.
+
+        Вероятная причина: ошибка в реализации webdriver и\или ошибка верстки \
+            тогда возможно есть связь с ошибкой id 1.
+        При повторении шаблона страницы логина на голом html 2 input и \
+            1 link(button Log in) ошибка не воспроизводится.
+
+
+Name: Chrome getComputedStyle not implemented get pseudo element "placeholder"
+    In: Field user, password placeholder color. Test content login 1.2
+    Status: Open
+    Важность: Low
+    From: Tester
+    To: Tester
+    Id: 3
+
+    Description:
+        Ошибка получения цвета placeholder при помощи JS
+
+        Сам цвет присутствует в style и отображается корректно.
+
+        Что бы увидеть в консоли нужно включить в настройках devtools опцию \
+            "Show user agent shadow DOM" после чего в вкладке Elements \
+            появится вложенный в input #shadow-root div
+
+        Дополнительная ссылка:
+        https://bugs.chromium.org/p/chromium/issues/detail?id=922869
