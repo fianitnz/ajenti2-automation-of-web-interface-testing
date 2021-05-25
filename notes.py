@@ -335,12 +335,27 @@ implicitly_wait_pause = ImplicitlyWaitPause()
 
 # #############################################################################
 #
-#
+# Chrome
 #
 # #############################################################################
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+chrome_options = Options()
+chrome_options.add_argument("--disable-infobars")
+browser = webdriver.Chrome(executable_path = path_to_chromedriver,chrome_options=chrome_options)
 
 
+https://help.applitools.com/hc/en-us/articles/360007189411--Chrome-is-being-controlled-by-automated-test-software-notification
 
+chrome_options = webdriver.ChromeOptions();
+chrome_options.add_experimental_option("excludeSwitches", ['enable-automation']);
+driver = webdriver.Chrome(options=chrome_options);
+
+options = webdriver.ChromeOptions()
+options.add_experimental_option("excludeSwitches", ["enable-automation"])
+caps = options.to_capabilities()
+driver = webdriver.Remote(command_executor='http://127.0.0.1:4444/wd/hub',
+                            desired_capabilities=caps)
 # #############################################################################
 #
 #

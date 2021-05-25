@@ -3,3 +3,8 @@
 
     ubuntu 20.04.1 ajenti-panel segmentation fault greenlet==0.4.17 0.4.16 work
     +gevent
+
+sftp root access
+    edit: /etc/ssh/sshd_config
+    add\uncomment: PermitRootLogin yes
+    restart ssh: sudo service ssh restart

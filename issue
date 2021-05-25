@@ -36,7 +36,7 @@ Test case road
 Name: Firefox webdriver error screenshot element
     In: Field user and password, Test content login 1.2
     Status: Open
-    Важность: Low
+    Важность: Ultra Low
     From: Tester
     To: Tester
     Id: 1
@@ -56,9 +56,9 @@ Name: Firefox webdriver error screenshot element
 
 
 Name: Firefox webdriver error Shift+Tab navigation
-    In: Field user, password, and button Log in. Test content login 1.2
+    In: Field password and button Log in. Test content login 1.2
     Status: Open
-    Важность: Low
+    Важность: Ultra Low
     From: Tester
     To: Tester
     Id: 2
@@ -66,6 +66,11 @@ Name: Firefox webdriver error Shift+Tab navigation
     Description:
         Ошибка переключения выбора по Shift+Tab через webdriver. При этом Tab \
             работает.
+        Ошибка воспроизводится тольк при переключении c поля пароля на кнопку.
+        При клике или нажатии средствами селена id различаются \
+            located.id DRIVERF.switch_to.active_element.id в firefox и chrome
+        При нажатии средствами селена через ipython в firefox не происходит \
+            нажатие. В chrome работает. В скрипте нажатие работает.
 
         Ошибка не воспроизовдится при ручном тестировании, и в брузере Chrome.
 
@@ -73,12 +78,14 @@ Name: Firefox webdriver error Shift+Tab navigation
             тогда возможно есть связь с ошибкой id 1.
         При повторении шаблона страницы логина на голом html 2 input и \
             1 link(button Log in) ошибка не воспроизводится.
+        Есть вариант что причина кроется в неверном локаторе... нет id \
+            всё равно разный.
 
 
 Name: Chrome getComputedStyle not implemented get pseudo element "placeholder"
     In: Field user, password placeholder color. Test content login 1.2
     Status: Open
-    Важность: Low
+    Важность: Ultra Low
     From: Tester
     To: Tester
     Id: 3

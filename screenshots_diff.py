@@ -62,7 +62,7 @@ class PM():
 
             if percent_reciv > percent or percent == 0.0:
                 img_a.save(p.joinpath()/(name+'_a.png'))
-                # Если процент разности 0 не сохраняем.
+                # Если процент разности 0.0 не сохраняем.
                 # Полученные снимки используем как reference
                 if percent > 0.0:
                     img_b.save(p.joinpath()/(name+'_b.png'))
