@@ -185,7 +185,7 @@ class WaitColor():
 ecc_wait_color = wait_color_element
 
 
-# для jquery есть .is(':animated') но что то не работает даже на демо
+# NOTE для jquery есть .is(':animated') но что то не работает даже на демо
 def ecc_wait_transform(element):
     def _predicat(driver):
         x, y = round(element.location['x']), round(element.location['y'])
@@ -282,15 +282,6 @@ class LocatorsContentLogin():
         'background_activ': 'rgba(10, 104, 180, 1)',
         'text': 'rgba(255, 255, 255, 1)'}
 
-    # Лишняя обвязка к удалению
-    #@classmethod
-    #def field(self, typ):
-        #if typ == 'usr':
-            #return self.field_usr_css, self.field_usr_color
-        #if typ == 'pswd':
-            #return self.field_usr_css, self.field_usr_color
-        #pass
-
 
 class LocatorsMenu():
     pass
@@ -328,21 +319,23 @@ class Screenshot():
             img = WebDriverWait(DRIVER, DEFAULT_TIME) \
                 .until(EC.visibility_of_element_located(locator)) \
                 .screenshot_as_png
-            STACK.put([img,
-                      '{}_{}___{}___{}'.format(id,
-                                               self.prefix,
-                                               self.suffix,
-                                               note),
-                      percent])
+            STACK.put([
+                img,
+                '{}_{}___{}___{}'.format(
+                    id,
+                    self.prefix,
+                    self.suffix,
+                    note),
+                percent])
         else:
             WebDriverWait(DRIVER, DEFAULT_TIME) \
                 .until(EC.visibility_of_element_located(locator)) \
-                .screenshot('{}_{}x{}_{}_{}.png'
-                            .format(self.prefix,
-                                    *WINDOW_SIZE,
-                                    self.suffix,
-                                    note)
-                            )
+                .screenshot(
+                    '{}_{}x{}_{}_{}.png'.format(
+                        self.prefix,
+                        *WINDOW_SIZE,
+                        self.suffix,
+                        note))
 
     def screenshot_parent(self, id, note, src=True):
         self.screenshot(id, note, src, self.locator_parent)
@@ -355,16 +348,16 @@ def get(url, anim=False):
     DRIVER.get(url)
     if not anim:
         DRIVER.execute_script('''
-        let style = document.createElement('style');
-        style.innerHTML = `
-            body *,
-            body * :after,
-            body * :before {
-            animation: none !important;
-            transition: none !important;
-            }
-        `;
-        document.head.appendChild(style);
+            let style = document.createElement('style');
+            style.innerHTML = `
+                body *,
+                body * :after,
+                body * :before {
+                animation: none !important;
+                transition: none !important;
+                }
+            `;
+            document.head.appendChild(style);
         ''')
 
 
@@ -434,7 +427,7 @@ class Icon(Screenshot):
                 equal))
 
     def is_visible(self):
-        ret = WebDriverWait(DRIVER, DEFAULT_TIME) \
+        ret = WebDriverWait(DRIVER, DEFAULT_TIME, poll_frequency=0.3) \
             .until(EC.visibility_of_element_located(self.locator))
         return True if ret is not None else False
 
@@ -662,18 +655,23 @@ class Header(Screenshot):
     locator_parent = Locators.body
     locator_scr = locator
 
-    link_ajenti = Link(prefix,
-                       '1_link_ajenti',
-                       LocatorsHeader.link_ajenti,
-                       locator)
-    icon_host_name = IconWithName(prefix,
-                                  '2_icon_host_name',
-                                  LocatorsHeader.icon_host_name,
-                                  locator)
-    button_resize = Button(prefix,
-                           '3_button_resize',
-                           LocatorsHeader.button_resize,
-                           locator)
+    link_ajenti = Link(
+        prefix,
+        '1_link_ajenti',
+        LocatorsHeader.link_ajenti,
+        locator)
+
+    icon_host_name = IconWithName(
+        prefix,
+        '2_icon_host_name',
+        LocatorsHeader.icon_host_name,
+        locator)
+
+    button_resize = Button(
+        prefix,
+        '3_button_resize',
+        LocatorsHeader.button_resize,
+        locator)
 
 
 class ContentLogin(Screenshot):
@@ -683,11 +681,12 @@ class ContentLogin(Screenshot):
     locator_parent = Locators.body
     locator_scr = locator
 
-    icon_padlock = Icon(prefix,
-                        '1_icon_padlock',
-                        LocatorsContentLogin.icon_padlock,
-                        LocatorsContentLogin.icon_padlock_js,
-                        locator)
+    icon_padlock = Icon(
+        prefix,
+        '1_icon_padlock',
+        LocatorsContentLogin.icon_padlock,
+        LocatorsContentLogin.icon_padlock_js,
+        locator)
     icon_padlock_flip = Icon(
         prefix,
         '1_icon_padlock',
@@ -700,27 +699,25 @@ class ContentLogin(Screenshot):
         LocatorsContentLogin.icon_padlock_unlock,
         LocatorsContentLogin.icon_padlock_unlock_js,
         locator)
-    field_usr = Field(prefix,
-                      '2_field_usr',
-                      LocatorsContentLogin.field_usr,
-                      locator,
-                      LocatorsContentLogin.field_usr_scr)
-    field_pswd = Field(prefix,
-                       '3_field_pswd',
-                       LocatorsContentLogin.field_pswd,
-                       locator)
 
-    # Лишняя обвязка к удалению
-    #def field(self, typ):
-        #if typ == 'usr':
-            #return self.field_usr
-        #if typ == 'pswd':
-            #return self.field_pswd
+    field_usr = Field(
+        prefix,
+        '2_field_usr',
+        LocatorsContentLogin.field_usr,
+        locator,
+        LocatorsContentLogin.field_usr_scr)
 
-    button_login = Button(prefix,
-                          '4_button_login',
-                          LocatorsContentLogin.button_login,
-                          locator)
+    field_pswd = Field(
+        prefix,
+        '3_field_pswd',
+        LocatorsContentLogin.field_pswd,
+        locator)
+
+    button_login = Button(
+        prefix,
+        '4_button_login',
+        LocatorsContentLogin.button_login,
+        locator)
 
 
 class Menu():
@@ -783,14 +780,14 @@ class TestCase1():
         header.link_ajenti.screenshot_parent(id, '2_mouse_on')
 
     # Icon host name
-    # при меленьком разрешении иконка отсутствует, придумать обработчик.
+    # TODO при меленьком разрешении иконка отсутствует, придумать обработчик.
         assert header.icon_host_name.text_get() == \
             HOST_NAME, '1.1 Иконка с именем хоста "{}"'.format(HOST_NAME)
 
         header.icon_host_name.screenshot_parent(id, '1_nothing')
 
     # Button resize
-    # при меленьком разрешении кнопка отсутствует, придумать обработчик.
+    # TODO при меленьком разрешении кнопка отсутствует, придумать обработчик.
         header.button_resize.screenshot_parent(id, '1_mouse_no')
         assert header.button_resize.mouse_on_wait_color(
             button_resize_css['background'],
@@ -813,7 +810,7 @@ class TestCase1():
         header.button_resize.click()
         header.button_resize.screenshot_body(id, '6_click_on')
 
-    # Restore
+        # Restore
         header.button_resize.click()
 
     def test_content_login_1_2(self):
@@ -827,9 +824,6 @@ class TestCase1():
         field_pswd_color = LocatorsContentLogin.field_pswd_color
         button_login_css = LocatorsContentLogin.button_login_css
         button_login_color = LocatorsContentLogin.button_login_color
-        # к удалению
-        #field_usr_css, field_usr_color = LocatorsContentLogin.field('usr')
-        #field_pswd_css, field_pswd_color = LocatorsContentLogin.field('pswd')
 
         content_login.screenshot(id, '1_overview')
 
@@ -924,86 +918,6 @@ class TestCase1():
 
         # Restore
         content_login.field_usr.key(Keys.CONTROL+Keys.BACKSPACE)
-
-        # Вариант признан накладным, вводящим лишние проверки и обвязку для
-        # работы, втч передачу параметров.
-        # Проще и надежнее обойтись дублированием кода, простое лучше сложного.
-        # Хотя возможно такая реализация подойдет для более простых
-        # и однородных повторяющихся более часто элементов.
-        #a = (('usr', 'Username', 'text', LOGIN_QWERTY[0],
-              #*LocatorsContentLogin.field('usr')),
-             #('pswd', 'Password', 'password', LOGIN_QWERTY[1],
-              #*LocatorsContentLogin.field('pswd')))
-        #for i in a:
-            #typ, placeholder, attribute, inp, css, color = i
-    # Field user and password
-            #content_login.field(typ).screenshot(id, '1_mouse_no')
-            ## цвет светло серый
-            #assert content_login.field(typ).color(
-                #css['background'],
-                #color['background'])
-            ## надпись заполнитель Username
-            #assert content_login.field(typ).attribute('placeholder') \
-                #== placeholder
-            ## цвет надписи заполнителя серый
-            #assert content_login.field(typ).color(
-                #css['text_placeholder'],
-                #color['text_placeholder'])
-            ## нижний бордер серый
-            #assert content_login.field(typ).color(
-                #css['border_bottom'],
-                #color['border_bottom'])
-            ## при наведении:
-            ## курсор текст
-            #assert content_login.field(typ).attribute('type') == attribute
-
-            ## при клике:
-            ## цвет меняется на фоновый
-            #assert content_login.field(typ).click_wait_color(
-                #css['background'],
-                #color['background_click'])
-            #content_login.field(typ).screenshot(id, '2_click')
-            ## фокус на элементе
-            #assert content_login.field(typ).element_on_focus()
-            ## нижний бордер синий
-            #assert content_login.field(typ).color(
-                #css['border_bottom'],
-                #color['border_bottom_click'])
-
-            ## при вводе:
-            #content_login.field(typ).text(inp)
-            ## исчезает надпись Username
-            ## выводятся набираемые символы
-            #content_login.field(typ).screenshot(id, '3_input')
-            ## клавиша Backspase удаляет введенные символы
-            #content_login.field(typ).key(Keys.BACKSPACE)
-            #content_login.field(typ).screenshot(id, '4_backspace')
-            ## при удалении всех сиволов появляется надпись Username
-            #content_login.field(typ).key(
-                #Keys.BACKSPACE*len(inp[0:-1]))
-            #content_login.field(typ).screenshot(id, '5_clear')
-            ## клавиша Tab переводит фокус к следующему элементу
-            #content_login.field(typ).key(Keys.TAB)
-            #assert not content_login.field(typ).element_on_focus()
-            ## скриншот смены фокуса в следующем блоке
-            ## что бы не дублировать проверку цвета
-
-            ## при потере фокуса:
-            ## исходное состояние
-            #assert content_login.field(typ).color(
-                #css['background'],
-                #color['background'])
-            #assert content_login.field(typ).color(
-                #css['border_bottom'],
-                #color['border_bottom'])
-            #content_login.field(typ).screenshot_parent(id, '6_next_focus')
-            #content_login.field(typ).screenshot(id, '7_no_write')
-            ## черные символы если введены
-            #content_login.field(typ).text(inp)
-            #content_login.field(typ).screenshot(id, '8_write')
-
-            ## Restore
-            #content_login.field(typ).key(Keys.CONTROL+Keys.BACKSPACE)
 
     # Field password
         content_login.field_pswd.screenshot(id, '1_mouse_no')
@@ -1154,7 +1068,7 @@ class TestCase1():
         # при неверных Username и Password всплывающие уведомления
         # столько же сколько было кликов
 
-    # Restore
+        # Restore
         # FIXME возможно в будущем тут нужно передать время ожидания
         assert content_login.button_login.color(
             button_login_css['background_activ'],
@@ -1176,6 +1090,8 @@ class TestCase1():
         assert content_login.icon_padlock_flip.is_visible()
         # иконка сменилась на символ \f13e открытый замок
         # анимация вращения
+        # NOTE в chrome слишком быстрый переход не удается поймать is_visible
+        # NOTE перепроверить в ручную
         assert content_login.icon_padlock_unlock.is_visible()
         # происходит логин
         # перенаправление на:
@@ -1185,7 +1101,7 @@ class TestCase1():
         assert WebDriverWait(DRIVER, DEFAULT_TIME) \
             .until(EC.title_is('Dashboard | '+HOST_NAME))
 
-    # Resotre
+        # Resotre
         # TODO написать разлогин как отдельную функцию за одно и логин
         # TODO добавить скриншотов в весь подтест кейс
 
