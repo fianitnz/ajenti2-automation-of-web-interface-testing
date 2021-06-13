@@ -213,6 +213,34 @@ class LocatorsHeader():
         'icon_mouse_hold': 'rgba(51, 51, 51, 1)'}  # press
 
 
+'''
+noaction
+'color'            'rgb (33, 150, 243)'
+'background-color' 'rgba( 0,   0,   0, 0)'
+'border-top-color' 'rgb (33, 150, 243)'
+
+ActionChains(DRIVER).move_to_element(loc).perform()
+:hover
+'color'            'rgb ( 33, 150, 243)'
+'background-color' 'rgba(  0,   0,   0, 0.05)'
+'border-top-color' 'rgb (207, 207, 207)'
+
+ActionChains(DRIVER).click_and_hold(loc)
+                     .move_to_element_with_offset(loc, -10, -10)
+                     .perform()
+:activ
+'color'           'rgb ( 33, 150, 243)'
+'background-color''rgba(  0,   0,   0, 0.1)'
+'border-top-color''rgb (207, 207, 207)'
+
+ActionChains(DRIVER).click_and_hold(loc).perform()
+:focus
+'color'            'rgb( 51,  51,  51)'
+'background-color' 'rgb(212, 212, 212)'
+'border-top-color' 'rgb(174, 174, 174)'
+'''
+
+
 class LocatorsContentLogin():
     content_login = (By.XPATH, '//div[@id="login-form"]')
 
@@ -262,6 +290,75 @@ class LocatorsContentLogin():
         'background_mouse_on': 'rgba(12, 124, 213, 1)',
         'background_activ': 'rgba(10, 104, 180, 1)',
         'text': 'rgba(255, 255, 255, 1)'}
+
+
+'''
+курсор то я проверяю?
+
+no input
+noaction
+color            rgb(255, 255, 255)
+background-color rgb( 33, 150, 243)
+border-top-color rgb( 13, 138, 238)
+
+ActionChains(DRIVER).move_to_element(loc).perform()
+:hover
+color            rgb(255, 255, 255)
+background-color rgb( 33, 150, 243)
+border-top-color rgb( 13, 138, 238)
+
+ActionChains(DRIVERF).click_and_hold(loc)
+                     .move_to_element_with_offset(loc, -1, -1)
+                     .perform()
+:activ
+fact
+color            rgb(255, 255, 255)
+background-color rgb( 33, 150, 243)
+border-top-color rgb( 13, 138, 238)
+fact in devtools and selenium
+color            rgb(255, 255, 255)
+background-color rgb( 12, 124, 213)
+border-top-color rgb( 10, 104, 180)
+
+ActionChains(DRIVERF).click_and_hold(loc).perform()
+:focus
+color            rgb(255, 255, 255)
+background-color rgb( 33, 150, 243)
+border-top-color rgb( 13, 138, 238)
+
+all
+'opacity' '0.65'
+
+
+input
+noaction
+'color'            rgb(255, 255, 255)
+'background-color' rgb( 33, 150, 243)
+'border-top-color' rgb( 13, 138, 238)
+
+ActionChains(DRIVERF).move_to_element(loc).perform()
+:hover
+'color'            rgb(255, 255, 255)
+'background-color' rgb( 12, 124, 213)
+'border-color'     rgb( 10, 104, 180)
+
+ActionChains(DRIVERF).click_and_hold(loc)
+                     .move_to_element_with_offset(loc, -1, -1)
+                     .perform()
+:activ
+'color'            rgb(255, 255, 255)
+'background-color' rgb( 12, 124, 213)
+'border-color'     rgb( 10, 104, 180)
+
+ActionChains(DRIVERF).click_and_hold(loc).perform()
+:focus
+'color'            rgb(255, 255, 255)
+'background-color' rgb( 12, 124, 213) in selenium rgb(10, 104, 180)
+'border-color'     rgb(  6,  68, 117)
+
+all
+'opacity' '1'
+'''
 
 
 class LocatorsMenu():
