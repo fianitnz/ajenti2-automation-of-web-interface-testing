@@ -24,8 +24,7 @@ from selenium.common.exceptions import NoSuchElementException
 from screenshots_diff import PM
 
 
-import selenium
-print('\n', '___Selenium version:', selenium.__version__)
+print('\n', '___Selenium webdriver version:', webdriver.__version__)
 
 DRIVER = None
 WINDOW_SIZE = (1024, 786)
@@ -107,18 +106,20 @@ def init_driver_0():
 не факт что он будет на скриншоте. И все эти проверки добавляют только задержку
 благодаря которой на скриншотах цвета соответствуют но если увеличится время
 анимации это ожидание цвета не будет рабоать.
+
 Решение:
 Проверять цвет на самом скриншоте делая его раз за разом, что накладно...
 Делать тоже самое в самом браузере при момощи js, что не сильно лучше.
 
-Отключить анимацию что, я не смог реализовать. Частично реализовано через JS
+Отключить анимацию, что я не смог реализовать.
+# Частично реализовано инжектом CSS с помощью JS
 
 Добавить фиксированную задержку, что костыль и подвержено багам при плавающем
 времени анимации.
 '''
 
 
-def wait_color_element(locat_or_elm, css, color):
+def ecc_wait_color(locat_or_elm, css, color):
     '''
     locat_or_elm локатор элемента, элемент или tuple для поиска через js
     css имя свойства стиля в котором хранится цвет
@@ -130,21 +131,21 @@ def wait_color_element(locat_or_elm, css, color):
             .getPropertyValue('{}');
             '''.format(element, pseudo_elem, prop))
         ret = Color.from_string(ret).rgba
-        # print('факт', ret, 'долж', color, css)
+        print('факт', ret, 'долж', color, css)
         return ret == color
 
     def _predicat_tup(driver):
         item_color = Color.from_string(
             driver.find_element(*locat_or_elm)
             .value_of_css_property(css)).rgba
-        # print('факт', item_color, 'долж', color, css)
+        print('факт', item_color, 'долж', color, css)
         return item_color == color
 
     def _predicat(driver):
         item_color = Color.from_string(
             locat_or_elm
             .value_of_css_property(css)).rgba
-        # print('факт', item_color, 'долж', color, css)
+        print('факт', item_color, 'долж', color, css)
         return item_color == color
     # if type(css) == tuple:
     if isinstance(css, tuple):
@@ -152,37 +153,6 @@ def wait_color_element(locat_or_elm, css, color):
         return _predicat_js_prop
     else:
         return _predicat_tup if type(locat_or_elm) == tuple else _predicat
-
-
-# EC as https://github.com/SeleniumHQ/selenium/blob/trunk/py/selenium/
-# webdriver/support/expected_conditions.py
-def wait_color_locator(locator, css, color):
-    def _predicat(driver):
-        item_color = Color.from_string(driver.find_element(*locator)
-                                       .value_of_css_property(css)).rgba
-        return item_color == color
-    return _predicat
-
-
-# EC as https://stackoverflow.com/questions/19377437/
-class WaitColor():
-    def __init__(self, locator, css, color):
-        self.locator = locator
-        self.css = css
-        self.color = color
-
-    def __call__(self, driver):
-        try:
-            item_color = Color \
-                .from_string(EC
-                             ._find_element(driver, self.locator)
-                             .value_of_css_property(self.css)).rgba
-            return item_color == self.color
-        except StaleElementReferenceException:
-            return False
-
-
-ecc_wait_color = wait_color_element
 
 
 # NOTE для jquery есть .is(':animated') но что то не работает даже на демо
@@ -219,9 +189,17 @@ def ecc_wait_css_js(selector, pseudo_elem, prop, equal):
 # #############################################################################
 class LocatorsHeader():
     header = (By.XPATH, '//nav')
+
     link_ajenti = (By.XPATH, '//nav//a[contains(., "Ajenti")]')
+
     icon_host_name = (By.XPATH, '//nav//p[contains(., "qwerty")]')
-    menu_user_menu = None
+
+    menu_user_menu = (By.CSS_SELECTOR, 'nav a.profile-button')
+    menu_user_menu_opened = (By.CSS_SELECTOR, 'nav ul.dropdown-menu')
+    menu_user_menu_usrname = (
+        By.XPATH, '//nav//li[contains(., "{}")]'.format(LOGIN_QWERTY[0]))
+    menu_user_menu_elevate = (By.XPATH, '//nav//li[contains(., "Elevate")]')
+    menu_user_menu_logout = (By.XPATH, '//nav//li[contains(., "Log out")]')
 
     button_resize = (By.XPATH, '//nav//a[@*="toggleWidescreen()"]')
     button_resize_css = {
@@ -239,6 +217,8 @@ class LocatorsContentLogin():
     content_login = (By.XPATH, '//div[@id="login-form"]')
 
     icon_padlock = (By.XPATH, '//i[@class="fa fa-lock"]')
+    # FIXME по этому локатору находится два элемента остальные тоже чинить
+    # i.fa-lock:not(.flip-cycle)
     icon_padlock_js = ('i.fa.fa-lock')
     icon_padlock_flip = (By.XPATH, '//i[@class="fa flip-cycle fa-lock"]')
     icon_padlock_flip_js = {'i.fa.flip-cycle.fa-lock'}
@@ -279,6 +259,7 @@ class LocatorsContentLogin():
         'text': 'color'}
     button_login_color = {
         'background': 'rgba(33, 150, 243, 1)',
+        'background_mouse_on': 'rgba(12, 124, 213, 1)',
         'background_activ': 'rgba(10, 104, 180, 1)',
         'text': 'rgba(255, 255, 255, 1)'}
 
@@ -359,6 +340,56 @@ def get(url, anim=False):
             `;
             document.head.appendChild(style);
         ''')
+
+
+def login(login, password):
+    # NOTE нужен ли тут контроль открытия формы логина\
+    # если не залогинены по умолчани всегда открывается форма логина
+    if DRIVER \
+        .find_element(*LocatorsHeader.menu_user_menu) \
+            .is_displayed():
+        return False, 'you are already loggin'
+    WebDriverWait(DRIVER, DEFAULT_TIME) \
+        .until(EC.visibility_of_element_located(
+            LocatorsContentLogin.field_usr)).send_keys(login)
+    DRIVER.find_element(*LocatorsContentLogin.field_pswd).send_keys(password)
+    DRIVER.find_element(*LocatorsContentLogin.button_login).click()
+    # какая разница что вернет если по ошибке всё равно вылетит
+    # так же будет и при выходе
+    # если всё ок то до ассерта дойдет истина, если будет не ок до ассерта дело
+    # так и не дойдет хотя конечно можно обернуть в try except
+    # но смысла в нем нет, так как если нет логина или разлогина работа встала
+    return WebDriverWait(DRIVER, DEFAULT_TIME) \
+        .until(EC.visibility_of_element_located(
+            LocatorsHeader.menu_user_menu))
+
+
+def logout():
+    # если не найдено меню пользователя, уже разлогинен
+    if not DRIVER \
+        .find_element(*LocatorsHeader.menu_user_menu) \
+            .is_displayed():
+        return False, 'you are already logged out'
+    # если меню пользователя не открыто, открываем
+    if not DRIVER \
+        .find_element(*LocatorsHeader.menu_user_menu_opened) \
+            .is_displayed():
+
+        DRIVER.find_element(*LocatorsHeader.menu_user_menu).click()
+    # кликаем в меню пользователя по кнопке разлогина
+    WebDriverWait(DRIVER, DEFAULT_TIME) \
+        .until(EC.visibility_of_element_located(
+            LocatorsHeader.menu_user_menu_logout)) \
+        .click()
+    # если разлогинились меню пользователя отсутствует
+    # и перешли к форме логина хотя можно и одной проверкой обойтись
+    return WebDriverWait(DRIVER, DEFAULT_TIME) \
+        .until(EC.invisibility_of_element_located(
+            LocatorsHeader.menu_user_menu), 'menu should not be visible') \
+        and WebDriverWait(DRIVER, DEFAULT_TIME) \
+        .until(EC.visibility_of_element_located(
+            LocatorsContentLogin.button_login), 'button must be visible') \
+        .is_displayed()
 
 
 # #############################################################################
@@ -530,7 +561,11 @@ class Button(Screenshot):
             .perform()
 
     def reset_wait_color(self, css, color):
-        ActionChains(DRIVER).reset_actions()
+        # ATTENTION Selenium version: 3.14.1 no work with reset_actions
+        # ATTENTION Selenium version: 4.0.0b3 work with reset_actions
+        # ATTENTION       WHAT? in Field work any version
+        # началось всё с добавления chrome
+        # ActionChains(DRIVER).reset_actions()
         ActionChains(DRIVER) \
             .move_to_element_with_offset(DRIVER.find_element(*Locators.body),
                                          0, 0) \
@@ -609,7 +644,7 @@ class Field(Screenshot):
 
     def element_on_focus(self):
         # js documet.activeElement
-        # проверить скорость выполнения с промежуточным присвоением и
+        # TODO проверить скорость выполнения с промежуточным присвоением и
         # вычислением на месте
         element = DRIVER.find_element(*self.locator).id
         active = DRIVER.switch_to.active_element.id
@@ -839,9 +874,6 @@ class TestCase1():
         assert content_login.icon_padlock.css_js(
             '::before', 'content', '\uf023')
 
-##
-##
-##
     # Field user
         content_login.field_usr.screenshot(id, '1_mouse_no')
         # цвет светло серый
@@ -859,6 +891,7 @@ class TestCase1():
         assert content_login.field_usr.color(
             field_usr_css['border_bottom'],
             field_usr_color['border_bottom'])
+
         # при наведении:
         # курсор текст
         assert content_login.field_usr.attribute('type') == 'text'
@@ -936,6 +969,7 @@ class TestCase1():
         assert content_login.field_pswd.color(
             field_pswd_css['border_bottom'],
             field_pswd_color['border_bottom'])
+
         # при наведении:
         # курсор текст
         assert content_login.field_pswd.attribute('type') == 'password'
@@ -1005,9 +1039,10 @@ class TestCase1():
             field_pswd_css['border_bottom'],
             field_pswd_color['border_bottom'])
 
-    # TODO добавить скриншоты
+    # TODO цвета кнопки наведено, зажато
     # Button login
         # неактивна
+        content_login.button_login.screenshot(id, '1_mouse_no')
         assert content_login.button_login.attribute('disabled')
         # цвет бледно синий
         assert content_login.button_login.color(
@@ -1023,10 +1058,13 @@ class TestCase1():
         # при наведении:
         # курсор недоступно
         assert content_login.button_login.css('cursor') == 'not-allowed'
+        # оно же click_hold_no
+        content_login.button_login.screenshot(id, '2_mouse_on')
 
         # при нажатии:
         # кнопка вместе с надписью пропорционально уменьшается ~10%
         content_login.button_login.click_hold_wait_transform()
+        content_login.button_login.screenshot_parent(id, '3_click_hold_on')
 
         # при фокусе:
         # click_hold выше, перемещает фокус на элемент.
@@ -1036,10 +1074,12 @@ class TestCase1():
         # надо проверять не потерю фокуса элементом а фокус на который \
         # элемент перешел
         assert not content_login.button_login.element_on_focus()
+        content_login.button_login.screenshot_parent(id, '4_prev_focus')
 
         # при клике:
         # изменений не происходит
         content_login.button_login.click()
+        content_login.button_login.screenshot(id, '5_click_on_activ_no')
 
         # при введенных символах в Username и Password:
         content_login.field_usr.text('q')
@@ -1052,9 +1092,14 @@ class TestCase1():
         assert content_login.button_login.color(
             button_login_css['background_activ'],
             button_login_color['background_activ'])
+        content_login.button_login.screenshot(id, '6_click_no_activ_on')
 
         # при клике неверный логин\пароль:
+        content_login.button_login.click_hold_wait_color(
+            button_login_css[''],
+            button_login_color[''])
         content_login.button_login.click()
+        content_login.button_login.screenshot(id, '7_click_on_activ_on')
         # проверка из иконка закрытый замок - при логине
         assert content_login.icon_padlock_flip.is_visible()
         content_login.button_login.click()
@@ -1064,18 +1109,19 @@ class TestCase1():
         assert content_login.button_login.color(
             button_login_css['background'],
             button_login_color['background'])
-        # FIXME написать проверку ошибки логина
-        # при неверных Username и Password всплывающие уведомления
+        content_login.button_login.screenshot(id, '8_click_on_activ_no')
+        # FIXME написать проверку всплывающего уведомления ошибки логина
+        # при неверных Username и Password всплывающих уведомлений
         # столько же сколько было кликов
 
         # Restore
-        # FIXME возможно в будущем тут нужно передать время ожидания
         assert content_login.button_login.color(
             button_login_css['background_activ'],
             button_login_color['background_activ'])
         content_login.field_usr.key(Keys.BACKSPACE)
         content_login.field_pswd.key(Keys.BACKSPACE)
         # TODO добавить ресет действий в action_chains где нужно
+        # NOTE проблема с версиями селена
         content_login.field_pswd.reset_wait_color(
             field_pswd_css['border_bottom'],
             field_pswd_color['border_bottom'])
@@ -1102,8 +1148,7 @@ class TestCase1():
             .until(EC.title_is('Dashboard | '+HOST_NAME))
 
         # Resotre
-        # TODO написать разлогин как отдельную функцию за одно и логин
-        # TODO добавить скриншотов в весь подтест кейс
+        logout()
 
     def test_content_login_login_1_3(self):
         id = '1.3'
@@ -1116,32 +1161,14 @@ class TestCase1():
         # self.test_header_1_1()
 
 
-# TODO разобратся с именами функций для получения текста на кнопке \
+# TODO разобратся с именами функций для получения текста на кнопке
 # текста введенного в поле, текста вводимого в поле.
+
 # TODO и возможно добавить обертку для прямого доступа к методам и атрибутам
 # в принципе надо бы пречисать и стандартизировать имена функций
 
-'''
-Отключение анимации в интерфейсе?
-
-diffimg процент и разность нужен простой допилинг и возврат изображения
-pixelmatch-py нет процента но есть количество измененных пикселей,
-    есть разность, !избежание антиалиасинга и порог срабатывания? чего?
-
-1. Получаем процент разности изображений !возможно не сильно то и легче \
-                                            делать отдельно от разности
-    если да то строим карту отличий и сохраняем в отчет.
-
-2. Проверяем CSS на изменения !возможно легче чем проверять все скрины \
-                                на разность скорее всего зависит от размера \
-                                изображения
-    если да то строим карту отличий и сохраняем в отчет.
-
-Ускорение проверки интерфейса
-скриншот и его проверка занимает много времени
-альтернатива скриншоту перед скриншотом проверяем css элемента
-если нет изменений считаем что скриншот нет смысла делать.
-
-возможно еще можно получить относительно 00 xy положение элемента
-в интерфейсе. !слабо реализуемо и малополезно?
-'''
+# TODO для конопок у которых аниация изменения цвета пороисходит путем
+# изменением видимости например бордера переработать детект цвета на детект
+# изменения бордера так как цвет остается не изменен и визуализируется путем
+# изменения ширины бордера с 0 на хх px цвет же при этом задан в коде стиля
+# и постоянен. Примеры таких кнопок это ресайз и логин
