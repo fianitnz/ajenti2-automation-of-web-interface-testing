@@ -4,6 +4,8 @@
 
 import time
 import pytest
+import requests
+import json
 
 
 from selenium import webdriver
@@ -23,7 +25,6 @@ from selenium.common.exceptions import NoSuchElementException
 
 from screenshots_diff import PM
 
-
 print('\n', '___Selenium webdriver version:', webdriver.__version__)
 
 DRIVER = None
@@ -31,6 +32,7 @@ WINDOW_SIZE = (1024, 786)
 
 SCHEME = 'http://'
 HOST_ADDRES = '192.168.122.181:8000'
+URL = 'http://192.168.122.181:8000'
 HOST_NAME = 'qwerty'
 LOGIN_QWERTY = ('qwerty', 'qwerty')
 LOGIN_ROOT = ('root', 'qwerty')
@@ -73,7 +75,7 @@ def init_driver_0():
     DRIVER.set_window_position(600-(WINDOW_SIZE[0]/2), 0)
 
     # WINDOW_SIZE for directory name
-    pm = PM('{}x{}'.format(*WINDOW_SIZE), LOCALE)
+    pm = PM('{}x{}'.format(*WINDOW_SIZE), LOCALE)  # TODO add browser
 
     STACK = pm.stack
 
@@ -293,8 +295,6 @@ class LocatorsContentLogin():
 
 
 '''
-курсор то я проверяю?
-
 no input
 noaction
 color            rgb(255, 255, 255)
@@ -1247,17 +1247,48 @@ class TestCase1():
         # Resotre
         logout()
 
+    # UI login\logout
     def test_content_login_login_1_3(self):
         id = '1.3'
 
-    # def test_login_page_1_4(self):
+        # login(*LOGIN_QWERTY)
+        # logout()
+        # login(*LOGIN_QWERTY)
+        # logout()
+        # logout()
+        # login(*LOGIN_QWERTY)
+        # login(*LOGIN_QWERTY)
+        # logout()
+        logout()
+
+    @pytest.mark.parametrize(
+        'login',
+        (('root', True), ('qwerty', True), ('q', False), ('', False)))
+    @pytest.mark.parametrize(
+        'password',
+        (('qwerty', True), ('q', False), ('', False)))
+    def test_login_page_1_4(self, login, password):
+        path_login = '/api/core/auth'
+        path_logout = '/api/core/logout'
+        headers_login = {'Content-Type': 'application/json'}
+        headers_logout = {'X-Auth-Identity': login}
+        data = {'mode': 'normal',
+                'login': login,
+                'password': password}
+
+        response = requests.post(
+            URL+path_login, headers_login, json.dumps(data))
+        print(response.status_code)
+        cookies = response.cookies
+        response = requests.get(URL+path_logout, headers_logout)
+        print(response.status_code)
 
     # def test_login_page_1_5(self):
 
     # def test_(self):
         # self.test_header_1_1()
 
-
+# судя по всему мнение ошибочное
 # TODO разобратся с именами функций для получения текста на кнопке
 # текста введенного в поле, текста вводимого в поле.
 
