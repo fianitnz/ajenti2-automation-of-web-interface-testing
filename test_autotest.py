@@ -5,7 +5,6 @@
 import time
 import pytest
 import requests
-import json
 
 
 from selenium import webdriver
@@ -1193,8 +1192,8 @@ class TestCase1():
 
         # при клике неверный логин\пароль:
         content_login.button_login.click_hold_wait_color(
-            button_login_css[''],
-            button_login_color[''])
+            button_login_css['background'],
+            button_login_color['background_mouse_on'])
         content_login.button_login.click()
         content_login.button_login.screenshot(id, '7_click_on_activ_on')
         # проверка из иконка закрытый замок - при логине
@@ -1251,16 +1250,17 @@ class TestCase1():
     def test_content_login_login_1_3(self):
         id = '1.3'
 
-        # login(*LOGIN_QWERTY)
-        # logout()
-        # login(*LOGIN_QWERTY)
-        # logout()
-        # logout()
-        # login(*LOGIN_QWERTY)
-        # login(*LOGIN_QWERTY)
-        # logout()
+        login(*LOGIN_QWERTY)
+        logout()
+        login(*LOGIN_QWERTY)
+        logout()
+        logout()
+        login(*LOGIN_QWERTY)
+        login(*LOGIN_QWERTY)
+        logout()
         logout()
 
+    # API login\logout
     @pytest.mark.parametrize(
         'login',
         (('root', True), ('qwerty', True), ('q', False), ('', False)))
@@ -1268,20 +1268,18 @@ class TestCase1():
         'password',
         (('qwerty', True), ('q', False), ('', False)))
     def test_login_page_1_4(self, login, password):
-        path_login = '/api/core/auth'
-        path_logout = '/api/core/logout'
-        headers_login = {'Content-Type': 'application/json'}
-        headers_logout = {'X-Auth-Identity': login}
         data = {'mode': 'normal',
-                'login': login,
-                'password': password}
+                'username': login[0],
+                'password': password[0]}
 
-        response = requests.post(
-            URL+path_login, headers_login, json.dumps(data))
-        print(response.status_code)
-        cookies = response.cookies
-        response = requests.get(URL+path_logout, headers_logout)
-        print(response.status_code)
+        response = requests.post(url=URL+'/api/core/auth', json=data)
+        assert response.status_code == 200
+        if response.json()['success']:
+            assert login[1] and password[1]
+            response = requests.get(
+                url=URL+'/api/core/logout',
+                cookies=response.cookies)
+            assert response.status_code == 200
 
     # def test_login_page_1_5(self):
 
