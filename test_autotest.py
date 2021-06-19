@@ -2,8 +2,11 @@
 # BUG FIXME DEPRECATED TASK TODO TBD WARNING CAUTION NOLINT
 # NOTE NOTICE TEST TESTING
 
-import time
 import pytest
+# pytest plugins
+import pytest_check as check
+
+import time
 import requests
 
 
@@ -50,7 +53,7 @@ STACK = None
 # указание для каждого конкретного случая пороговог значения
 PERCENT = 0.0
 
-# Что то тут не так scope autouse
+
 @pytest.fixture(scope="module", autouse=True)
 def init_driver_0():
     global DRIVER, STACK
@@ -438,7 +441,7 @@ def get(url, anim=False):
         ''')
 
 
-def login(login, password):
+def login_ui(login, password):
     # NOTE нужен ли тут контроль открытия формы логина\
     # если не залогинены по умолчани всегда открывается форма логина
     if DRIVER \
@@ -450,17 +453,24 @@ def login(login, password):
             LocatorsContentLogin.field_usr)).send_keys(login)
     DRIVER.find_element(*LocatorsContentLogin.field_pswd).send_keys(password)
     DRIVER.find_element(*LocatorsContentLogin.button_login).click()
-    # какая разница что вернет если по ошибке всё равно вылетит
-    # так же будет и при выходе
-    # если всё ок то до ассерта дойдет истина, если будет не ок до ассерта дело
-    # так и не дойдет хотя конечно можно обернуть в try except
-    # но смысла в нем нет, так как если нет логина или разлогина работа встала
-    return WebDriverWait(DRIVER, DEFAULT_TIME) \
-        .until(EC.visibility_of_element_located(
-            LocatorsHeader.menu_user_menu))
+
+    try:
+        return WebDriverWait(DRIVER, DEFAULT_TIME) \
+            .until(EC.visibility_of_element_located(
+                LocatorsHeader.menu_user_menu))
+    except TimeoutException:
+        WebDriverWait(DRIVER, DEFAULT_TIME) \
+            .until(EC.element_to_be_clickable(
+                LocatorsContentLogin.field_usr)) \
+            .send_keys(Keys.CONTROL+Keys.BACKSPACE)
+        WebDriverWait(DRIVER, DEFAULT_TIME) \
+            .until(EC.element_to_be_clickable(
+                LocatorsContentLogin.field_pswd)) \
+            .send_keys(Keys.CONTROL+Keys.BACKSPACE)
+        return False
 
 
-def logout():
+def logout_ui():
     # если не найдено меню пользователя, уже разлогинен
     if not DRIVER \
         .find_element(*LocatorsHeader.menu_user_menu) \
@@ -486,6 +496,14 @@ def logout():
         .until(EC.visibility_of_element_located(
             LocatorsContentLogin.button_login), 'button must be visible') \
         .is_displayed()
+
+
+def login_api(to_browser):
+    ...
+
+
+def logout_api():
+    ...
 
 
 # #############################################################################
@@ -861,9 +879,11 @@ class Menu():
 #
 # #############################################################################
 class TestCase1():
+    body = Body()
+
     def test_open_panel_1_0(self):
         id = '1.0'
-        body = Body()
+
         DRIVER.set_page_load_timeout(4)
 
         try:
@@ -882,7 +902,7 @@ class TestCase1():
 
         assert WebDriverWait(DRIVER, DEFAULT_TIME) \
             .until(EC.title_is(HOST_NAME)), '1.0 Имя хоста в заголовке'
-        body.screenshot(id, '1_overview')
+        self.body.screenshot(id, '1_overview')
 
     def test_header_1_1(self):
         id = '1.1'
@@ -1244,21 +1264,38 @@ class TestCase1():
             .until(EC.title_is('Dashboard | '+HOST_NAME))
 
         # Resotre
-        logout()
+        logout_ui()
 
     # UI login\logout
-    def test_content_login_login_1_3(self):
+    @pytest.mark.parametrize(
+        'login',
+        (('root', True), ('qwerty', True), ('q', False), ('', False)))
+    @pytest.mark.parametrize(
+        'password',
+        (('qwerty', True), ('q', False), ('', False)))
+    def test_content_login_login_1_3(self, login, password):
         id = '1.3'
-
-        login(*LOGIN_QWERTY)
-        logout()
-        login(*LOGIN_QWERTY)
-        logout()
-        logout()
-        login(*LOGIN_QWERTY)
-        login(*LOGIN_QWERTY)
-        logout()
-        logout()
+        if login[1] and password[1]:
+            assert login_ui(login[0], password[0]), \
+                'не логин при верных логине/пароле'
+            # ATTENTION возможен сбой сохранения файла если спецсимволы
+            self.body.screenshot(id, '1_login_'+login[0]+"_"+password[0])
+            assert logout_ui()
+            self.body.screenshot(id, '2_logout_'+login[0]+"_"+password[0])
+        else:
+            if login_ui(login[0], password[0]):
+                # check что бы сработал скриншот и разлогин со скриншотом
+                # правда зачем этот скришот если его несчем сравнивать
+                # да и скриншоты тут не нужны по хорошему вот совсем
+                check.is_true(False, 'не логин при верных логине/пароле')
+                # assert False, 'логин при неверных логине/пароле'
+                # ATTENTION возможен сбой сохранения файла если спецсимволы
+                self.body.screenshot(
+                    id, '3_login_error_'+login[0]+"_"+password[0])
+                assert logout_ui()
+                self.body.screenshot(
+                    id, '4_logout_error_'+login[0]+"_"+password[0])
+            self.body.screenshot(id, '5_login_not_'+login[0]+"_"+password[0])
 
     # API login\logout
     @pytest.mark.parametrize(
@@ -1275,24 +1312,33 @@ class TestCase1():
         response = requests.post(url=URL+'/api/core/auth', json=data)
         assert response.status_code == 200
         if response.json()['success']:
-            assert login[1] and password[1]
+            assert login[1] and password[1], \
+                'Произошол логин с неверными логином/паролем'
             response = requests.get(
                 url=URL+'/api/core/logout',
                 cookies=response.cookies)
-            assert response.status_code == 200
+            assert response.status_code == 200, \
+                'Ошибка разлогина/неверный ответ сервера'
+        else:
+            assert False if login[1] and password[1] is True else True, \
+                'Логин не произошол хотя логин/пароль верные'
+
+    # TODO автоматизировать обращение к api
+    # с\без данных верными\ошибочными данными кроме сами данных логина
+    # есть ошибки!
 
     # def test_login_page_1_5(self):
 
     # def test_(self):
         # self.test_header_1_1()
 
-# судя по всему мнение ошибочное
 # TODO разобратся с именами функций для получения текста на кнопке
 # текста введенного в поле, текста вводимого в поле.
 
 # TODO и возможно добавить обертку для прямого доступа к методам и атрибутам
-# в принципе надо бы пречисать и стандартизировать имена функций
+# в принципе надо бы пречисать и стандартизировать имена функций\методов
 
+# судя по всему мнение ошибочное
 # TODO для конопок у которых аниация изменения цвета пороисходит путем
 # изменением видимости например бордера переработать детект цвета на детект
 # изменения бордера так как цвет остается не изменен и визуализируется путем
