@@ -20,13 +20,16 @@ Ajenti2 веб панель администратора сервера.
     * lib:
         * pytest
         * selenium.webdriver
+        * requests
         * pixelmatch-py
         * multiprocessing
     * lib вспомогательные:
         * PIL.Image
-        * pathlib.Path
         * io.BytesIO
+        * pathlib.Path
         * time
+    * pytest plugin
+        * pytest_check.check
 * Selenium WebDriver
 
 Окружение запускается на KVM в ручную.

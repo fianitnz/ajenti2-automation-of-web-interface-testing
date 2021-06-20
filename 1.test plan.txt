@@ -54,6 +54,9 @@
 
         lib
             Selenium for Python
+            pytest
+                plugins
+                    pytest-check https://github.com/okken/pytest-check
             pixelmatch
 
         lib deprecated
