@@ -215,34 +215,27 @@ class LocatorsHeader():
         'background_mouse_hold': 'rgba(174, 174, 174, 1)',  # press
         'icon_mouse_on': 'rgba(33, 150, 243, 1)',  # over
         'icon_mouse_hold': 'rgba(51, 51, 51, 1)'}  # press
+    button_resize_color_new = {
+        'noaction_color':            'rgba(33, 150, 243, 1)',
+        'noaction_background-color': 'rgba( 0,   0,   0, 0)',
+        'noaction_border-color':     'rgba(33, 150, 243, 1)',
 
+        # ActionChains(DRIVER).move_to_element(loc).perform()
+        ':hover_color':            'rgba( 33, 150, 243, 1   )',
+        ':hover_background-color': 'rgba(  0,   0,   0, 0.05)',
+        ':hover_border-color':     'rgba(207, 207, 207, 1   )',
 
-'''
-noaction
-'color'            'rgb (33, 150, 243)'
-'background-color' 'rgba( 0,   0,   0, 0)'
-'border-top-color' 'rgb (33, 150, 243)'
+        # ActionChains(DRIVER).click_and_hold(loc)
+        #                     .move_to_element_with_offset(loc, -10, -10)
+        #                     .perform()
+        ':activ_color':            'rgba( 33, 150, 243, 1  )',
+        ':activ_background-color': 'rgba(  0,   0,   0, 0.1)',
+        ':activ_border-color':     'rgba(207, 207, 207, 1  )',
 
-ActionChains(DRIVER).move_to_element(loc).perform()
-:hover
-'color'            'rgb ( 33, 150, 243)'
-'background-color' 'rgba(  0,   0,   0, 0.05)'
-'border-top-color' 'rgb (207, 207, 207)'
-
-ActionChains(DRIVER).click_and_hold(loc)
-                     .move_to_element_with_offset(loc, -10, -10)
-                     .perform()
-:activ
-'color'           'rgb ( 33, 150, 243)'
-'background-color''rgba(  0,   0,   0, 0.1)'
-'border-top-color''rgb (207, 207, 207)'
-
-ActionChains(DRIVER).click_and_hold(loc).perform()
-:focus
-'color'            'rgb( 51,  51,  51)'
-'background-color' 'rgb(212, 212, 212)'
-'border-top-color' 'rgb(174, 174, 174)'
-'''
+        # ActionChains(DRIVER).click_and_hold(loc).perform()
+        ':focus_color':            'rgba( 51,  51,  51, 1)',
+        ':focus_background-color': 'rgba(212, 212, 212, 1)',
+        ':focus_border-color':     'rgba(174, 174, 174, 1)'}
 
 
 class LocatorsContentLogin():
@@ -286,81 +279,69 @@ class LocatorsContentLogin():
 
     button_login = (By.XPATH, '//a[contains(., "Log in")]')
     button_login_css = {
+        'text': 'color',
         'background': 'background-color',
-        'background_activ': 'border-top-color',
-        'text': 'color'}
+        'background_activ': 'border-top-color'}
     button_login_color = {
         'background': 'rgba(33, 150, 243, 1)',
         'background_mouse_on': 'rgba(12, 124, 213, 1)',
         'background_activ': 'rgba(10, 104, 180, 1)',
         'text': 'rgba(255, 255, 255, 1)'}
+    button_login_color_new_no_input = {
+        # no input
+        'opacity': '0.65',
 
+        'noaction_color':            'rgba(255, 255, 255, 1)',
+        'noaction_background-color': 'rgba( 33, 150, 243, 1)',
+        'noaction_border-color':     'rgba( 13, 138, 238, 1)',
 
-'''
-no input
-noaction
-color            rgb(255, 255, 255)
-background-color rgb( 33, 150, 243)
-border-top-color rgb( 13, 138, 238)
+        # ActionChains(DRIVER).move_to_element(loc).perform()
+        ':hower_color':               'rgba(255, 255, 255, 1)',
+        ':hower_background-color':    'rgba( 33, 150, 243, 1)',
+        ':hower_border-color':        'rgba( 13, 138, 238, 1)',
 
-ActionChains(DRIVER).move_to_element(loc).perform()
-:hover
-color            rgb(255, 255, 255)
-background-color rgb( 33, 150, 243)
-border-top-color rgb( 13, 138, 238)
+        # ActionChains(DRIVERF).click_and_hold(loc)
+        #                      .move_to_element_with_offset(loc, -1, -1)
+        #                      .perform()
+        # fact
+        # ':activ_color':            'rgba(255, 255, 255, 1)',
+        # ':activ_background-color': 'rgba( 33, 150, 243, 1)',
+        # ':activ_border-color':     'rgba( 13, 138, 238, 1)',
+        # fact in devtools and selenium
+        ':activ_color':            'rgba(255, 255, 255, 1)',
+        ':activ_background-color': 'rgba( 12, 124, 213, 1)',
+        ':activ_border-color':     'rgba( 10, 104, 180, 1)',
 
-ActionChains(DRIVERF).click_and_hold(loc)
-                     .move_to_element_with_offset(loc, -1, -1)
-                     .perform()
-:activ
-fact
-color            rgb(255, 255, 255)
-background-color rgb( 33, 150, 243)
-border-top-color rgb( 13, 138, 238)
-fact in devtools and selenium
-color            rgb(255, 255, 255)
-background-color rgb( 12, 124, 213)
-border-top-color rgb( 10, 104, 180)
+        # ActionChains(DRIVERF).click_and_hold(loc).perform()
+        ':focus_color':            'rgba(255, 255, 255, 1)',
+        ':focus_background-color': 'rgba( 33, 150, 243, 1)',
+        ':focus_border-color':     'rgba( 13, 138, 238, 1)'}
+    button_login_color_new_input = {
+        # input
+        'opacity': '1',
 
-ActionChains(DRIVERF).click_and_hold(loc).perform()
-:focus
-color            rgb(255, 255, 255)
-background-color rgb( 33, 150, 243)
-border-top-color rgb( 13, 138, 238)
+        'noaction_color':            'rgba(255, 255, 255, 1)',
+        'noaction_background-color': 'rgba( 33, 150, 243, 1)',
+        'noaction_border-color':     'rgba( 13, 138, 238, 1)',
 
-all
-'opacity' '0.65'
+        # ActionChains(DRIVERF).move_to_element(loc).perform()
+        ':hover_color':            'rgba(255, 255, 255, 1)',
+        ':hover_background-color': 'rgba( 12, 124, 213, 1)',
+        ':hover_border-color':     'rgba( 10, 104, 180, 1)',
 
+        # ActionChains(DRIVERF).click_and_hold(loc)
+        #                      .move_to_element_with_offset(loc, -1, -1)
+        #                      .perform()
+        ':activ_color':            'rgba(255, 255, 255, 1)',
+        ':activ_background-color': 'rgba( 12, 124, 213, 1)',
+        ':activ_border-color':     'rgba( 10, 104, 180, 1)',
 
-input
-noaction
-'color'            rgb(255, 255, 255)
-'background-color' rgb( 33, 150, 243)
-'border-top-color' rgb( 13, 138, 238)
-
-ActionChains(DRIVERF).move_to_element(loc).perform()
-:hover
-'color'            rgb(255, 255, 255)
-'background-color' rgb( 12, 124, 213)
-'border-color'     rgb( 10, 104, 180)
-
-ActionChains(DRIVERF).click_and_hold(loc)
-                     .move_to_element_with_offset(loc, -1, -1)
-                     .perform()
-:activ
-'color'            rgb(255, 255, 255)
-'background-color' rgb( 12, 124, 213)
-'border-color'     rgb( 10, 104, 180)
-
-ActionChains(DRIVERF).click_and_hold(loc).perform()
-:focus
-'color'            rgb(255, 255, 255)
-'background-color' rgb( 12, 124, 213) in selenium rgb(10, 104, 180)
-'border-color'     rgb(  6,  68, 117)
-
-all
-'opacity' '1'
-'''
+        # ActionChains(DRIVERF).click_and_hold(loc).perform()
+        ':focus_color':            'rgba(255, 255, 255, 1)',
+        # in selenium
+        # ':focus_background-color': 'rgba(10, 104, 180),
+        ':focus_background-color': 'rgba( 12, 124, 213, 1)',
+        ':focus_border-color':     'rgba(  6,  68, 117, 1)'}
 
 
 class LocatorsMenu():
@@ -1321,7 +1302,7 @@ class TestCase1():
                 'Ошибка разлогина/неверный ответ сервера'
         else:
             assert False if login[1] and password[1] is True else True, \
-                'Логин не произошол хотя логин/пароль верные'
+                'Логин не произошел хотя логин/пароль верные'
 
     # TODO автоматизировать обращение к api
     # с\без данных верными\ошибочными данными кроме сами данных логина
