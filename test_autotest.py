@@ -22,7 +22,7 @@ from selenium.webdriver.support.color import Color
 from selenium.webdriver.common.action_chains import ActionChains
 
 from selenium.common.exceptions import TimeoutException
-from selenium.common.exceptions import NoSuchElementException
+# from selenium.common.exceptions import NoSuchElementException
 
 
 from screenshots_diff import PM
@@ -47,7 +47,7 @@ DEFAULT_TIME = 4
 
 STACK = None
 
-# for pixelmatch: max percentage of differences
+# NOTE for pixelmatch: max percentage of differences
 # если установить 0 можно реализовать создание глобального эталона
 # нужен подбор значения и\или
 # указание для каждого конкретного случая пороговог значения
@@ -103,36 +103,15 @@ def init_driver_0():
 # Expected conditions customs
 #
 # #############################################################################
-
-'''
-Есть большое подозрение на то, что фактический цвет элемента так не поймать.
-А в свойствах прописан тот который должен быть, но в момент анимации перехода
-не факт что он будет на скриншоте. И все эти проверки добавляют только задержку
-благодаря которой на скриншотах цвета соответствуют но если увеличится время
-анимации это ожидание цвета не будет рабоать.
-
-Решение:
-Проверять цвет на самом скриншоте делая его раз за разом, что накладно...
-Делать тоже самое в самом браузере при момощи js, что не сильно лучше.
-
-Отключить анимацию, что я не смог реализовать.
-# Частично реализовано инжектом CSS с помощью JS
-
-Добавить фиксированную задержку, что костыль и подвержено багам при плавающем
-времени анимации.
-'''
-
-
 def ecc_wait_color(locat_or_elm, css, color):
     '''
-    locat_or_elm локатор элемента, элемент или tuple для поиска через js
-    css имя свойства стиля в котором хранится цвет
-    color цвет в формате rgba
+    locat_or_elm : locator or element or tuple
+    ('css element selector', 'css ::pseudoelement', 'expected color rgba')
     '''
     def _predicat_js_prop(driver):
         ret = driver.execute_script('''
             return window.getComputedStyle(document.querySelector('{}'), '{}')
-            .getPropertyValue('{}');
+                .getPropertyValue('{}');
             '''.format(element, pseudo_elem, prop))
         ret = Color.from_string(ret).rgba
         print('факт', ret, 'долж', color, css)
@@ -176,7 +155,7 @@ def ecc_wait_css_js(selector, pseudo_elem, prop, equal):
     def _predicat(driver):
         ret = driver.execute_script('''
             return window.getComputedStyle(document.querySelector('{}'), '{}')
-            .getPropertyValue('{}');
+                .getPropertyValue('{}');
             '''.format(selector, pseudo_elem, prop))
 
         if ret.startswith('"') and ret.endswith('"'):
@@ -207,8 +186,8 @@ class LocatorsHeader():
 
     button_resize = (By.XPATH, '//nav//a[@*="toggleWidescreen()"]')
     button_resize_css = {
-        'background': 'border-left-color',
-        'icon': 'color'}
+        'icon': 'color',
+        'background': 'border-left-color'}
     button_resize_color = {
         'background': 'rgba(33, 150, 243, 1)',
         'background_mouse_on': 'rgba(207, 207, 207, 1)',  # over
@@ -216,40 +195,38 @@ class LocatorsHeader():
         'icon_mouse_on': 'rgba(33, 150, 243, 1)',  # over
         'icon_mouse_hold': 'rgba(51, 51, 51, 1)'}  # press
     button_resize_color_new = {
-        'noaction_color':            'rgba(33, 150, 243, 1)',
-        'noaction_background-color': 'rgba( 0,   0,   0, 0)',
-        'noaction_border-color':     'rgba(33, 150, 243, 1)',
+        'noaction_color': 'rgba(33, 150, 243, 1)',
+        'noaction_background-color': 'rgba(0, 0, 0, 0)',
+        'noaction_border-color': 'rgba(33, 150, 243, 1)',
 
         # ActionChains(DRIVER).move_to_element(loc).perform()
-        ':hover_color':            'rgba( 33, 150, 243, 1   )',
-        ':hover_background-color': 'rgba(  0,   0,   0, 0.05)',
-        ':hover_border-color':     'rgba(207, 207, 207, 1   )',
+        ':hover_color': 'rgba(33, 150, 243, 1)',
+        ':hover_background-color': 'rgba(0, 0, 0, 0.05)',
+        ':hover_border-color': 'rgba(207, 207, 207, 1)',
 
         # ActionChains(DRIVER).click_and_hold(loc)
         #                     .move_to_element_with_offset(loc, -10, -10)
         #                     .perform()
-        ':activ_color':            'rgba( 33, 150, 243, 1  )',
-        ':activ_background-color': 'rgba(  0,   0,   0, 0.1)',
-        ':activ_border-color':     'rgba(207, 207, 207, 1  )',
+        ':activ_color': 'rgba(33, 150, 243, 1)',
+        ':activ_background-color': 'rgba(0, 0, 0, 0.1)',
+        ':activ_border-color': 'rgba(207, 207, 207, 1)',
 
         # ActionChains(DRIVER).click_and_hold(loc).perform()
-        ':focus_color':            'rgba( 51,  51,  51, 1)',
+        ':focus_color': 'rgba(51, 51, 51, 1)',
         ':focus_background-color': 'rgba(212, 212, 212, 1)',
-        ':focus_border-color':     'rgba(174, 174, 174, 1)'}
+        ':focus_border-color': 'rgba(174, 174, 174, 1)'}
 
 
 class LocatorsContentLogin():
     content_login = (By.XPATH, '//div[@id="login-form"]')
 
     icon_padlock = (By.XPATH, '//i[@class="fa fa-lock"]')
-    # FIXME по этому локатору находится два элемента остальные тоже чинить
-    # i.fa-lock:not(.flip-cycle)
-    icon_padlock_js = ('i.fa.fa-lock')
+    icon_padlock_js = ('i.fa-lock:not(.flip-cycle)')
     icon_padlock_flip = (By.XPATH, '//i[@class="fa flip-cycle fa-lock"]')
-    icon_padlock_flip_js = {'i.fa.flip-cycle.fa-lock'}
+    icon_padlock_flip_js = ('i.flip-cycle:not(.fa-unlock-alt)')
     icon_padlock_unlock = (
         By.XPATH, '//i[@class="fa flip-cycle fa-unlock-alt"]')
-    icon_padlock_unlock_js = {'i.fa.flip-cycle.fa-unlock-alt'}
+    icon_padlock_unlock_js = ('i.fa-unlock-alt')
     icon_padlock_css = {'color': 'color'}
     icon_padlock_color = {'color': 'rgba(136, 136, 136, 1)'}
 
@@ -261,8 +238,8 @@ class LocatorsContentLogin():
     field_usr_css = {
         'background': 'background-color',
         'border_bottom': 'border-bottom-color',
-        # костыль для получения значения псевдоэлемента через js
-        'text_placeholder': ('input', '::placeholder', 'color'),
+        'text_placeholder': (
+            'input[placeholder=Username]', '::placeholder', 'color'),
         'text': 'color'}
     field_usr_color = {
         'background': 'rgba(248, 248, 248, 1)',
@@ -274,7 +251,12 @@ class LocatorsContentLogin():
 
     # //input[contains(@*, "password")]
     field_pswd = (By.XPATH, '//input[@placeholder="Password"]')
-    field_pswd_css = field_usr_css
+    field_pswd_css = {
+        'background': 'background-color',
+        'border_bottom': 'border-bottom-color',
+        'text_placeholder': (
+            'input[placeholder=Password]', '::placeholder', 'color'),
+        'text': 'color'}
     field_pswd_color = field_usr_color
 
     button_login = (By.XPATH, '//a[contains(., "Log in")]')
@@ -291,57 +273,57 @@ class LocatorsContentLogin():
         # no input
         'opacity': '0.65',
 
-        'noaction_color':            'rgba(255, 255, 255, 1)',
-        'noaction_background-color': 'rgba( 33, 150, 243, 1)',
-        'noaction_border-color':     'rgba( 13, 138, 238, 1)',
+        'noaction_color': 'rgba(255, 255, 255, 1)',
+        'noaction_background-color': 'rgba(33, 150, 243, 1)',
+        'noaction_border-color': 'rgba(13, 138, 238, 1)',
 
         # ActionChains(DRIVER).move_to_element(loc).perform()
-        ':hower_color':               'rgba(255, 255, 255, 1)',
-        ':hower_background-color':    'rgba( 33, 150, 243, 1)',
-        ':hower_border-color':        'rgba( 13, 138, 238, 1)',
+        ':hower_color': 'rgba(255, 255, 255, 1)',
+        ':hower_background-color': 'rgba(33, 150, 243, 1)',
+        ':hower_border-color': 'rgba(13, 138, 238, 1)',
 
         # ActionChains(DRIVERF).click_and_hold(loc)
         #                      .move_to_element_with_offset(loc, -1, -1)
         #                      .perform()
         # fact
-        # ':activ_color':            'rgba(255, 255, 255, 1)',
-        # ':activ_background-color': 'rgba( 33, 150, 243, 1)',
-        # ':activ_border-color':     'rgba( 13, 138, 238, 1)',
+        # ':activ_color': 'rgba(255, 255, 255, 1)',
+        # ':activ_background-color': 'rgba(33, 150, 243, 1)',
+        # ':activ_border-color': 'rgba(13, 138, 238, 1)',
         # fact in devtools and selenium
-        ':activ_color':            'rgba(255, 255, 255, 1)',
-        ':activ_background-color': 'rgba( 12, 124, 213, 1)',
-        ':activ_border-color':     'rgba( 10, 104, 180, 1)',
+        ':activ_color': 'rgba(255, 255, 255, 1)',
+        ':activ_background-color': 'rgba(12, 124, 213, 1)',
+        ':activ_border-color': 'rgba(10, 104, 180, 1)',
 
         # ActionChains(DRIVERF).click_and_hold(loc).perform()
-        ':focus_color':            'rgba(255, 255, 255, 1)',
-        ':focus_background-color': 'rgba( 33, 150, 243, 1)',
-        ':focus_border-color':     'rgba( 13, 138, 238, 1)'}
+        ':focus_color': 'rgba(255, 255, 255, 1)',
+        ':focus_background-color': 'rgba(33, 150, 243, 1)',
+        ':focus_border-color': 'rgba(13, 138, 238, 1)'}
     button_login_color_new_input = {
         # input
         'opacity': '1',
 
-        'noaction_color':            'rgba(255, 255, 255, 1)',
-        'noaction_background-color': 'rgba( 33, 150, 243, 1)',
-        'noaction_border-color':     'rgba( 13, 138, 238, 1)',
+        'noaction_color': 'rgba(255, 255, 255, 1)',
+        'noaction_background-color': 'rgba(33, 150, 243, 1)',
+        'noaction_border-color': 'rgba(13, 138, 238, 1)',
 
         # ActionChains(DRIVERF).move_to_element(loc).perform()
-        ':hover_color':            'rgba(255, 255, 255, 1)',
-        ':hover_background-color': 'rgba( 12, 124, 213, 1)',
-        ':hover_border-color':     'rgba( 10, 104, 180, 1)',
+        ':hover_color': 'rgba(255, 255, 255, 1)',
+        ':hover_background-color': 'rgba(12, 124, 213, 1)',
+        ':hover_border-color': 'rgba(10, 104, 180, 1)',
 
         # ActionChains(DRIVERF).click_and_hold(loc)
         #                      .move_to_element_with_offset(loc, -1, -1)
         #                      .perform()
-        ':activ_color':            'rgba(255, 255, 255, 1)',
-        ':activ_background-color': 'rgba( 12, 124, 213, 1)',
-        ':activ_border-color':     'rgba( 10, 104, 180, 1)',
+        ':activ_color': 'rgba(255, 255, 255, 1)',
+        ':activ_background-color': 'rgba(12, 124, 213, 1)',
+        ':activ_border-color': 'rgba(10, 104, 180, 1)',
 
         # ActionChains(DRIVERF).click_and_hold(loc).perform()
-        ':focus_color':            'rgba(255, 255, 255, 1)',
+        ':focus_color': 'rgba(255, 255, 255, 1)',
         # in selenium
         # ':focus_background-color': 'rgba(10, 104, 180),
-        ':focus_background-color': 'rgba( 12, 124, 213, 1)',
-        ':focus_border-color':     'rgba(  6,  68, 117, 1)'}
+        ':focus_background-color': 'rgba(12, 124, 213, 1)',
+        ':focus_border-color': 'rgba( 6, 68, 117, 1)'}
 
 
 class LocatorsMenu():
@@ -419,11 +401,11 @@ def get(url, anim=False):
                 }
             `;
             document.head.appendChild(style);
-        ''')
+            ''')
 
 
 def login_ui(login, password):
-    # NOTE нужен ли тут контроль открытия формы логина\
+    # NOTE нужен ли тут контроль открытия формы логина?\
     # если не залогинены по умолчани всегда открывается форма логина
     if DRIVER \
         .find_element(*LocatorsHeader.menu_user_menu) \
@@ -671,7 +653,7 @@ class Button(Screenshot):
 
     def element_on_focus(self):
         # js documet.activeElement
-        # проверить скорость выполнения с промежуточным присвоением и
+        # TODO проверить скорость выполнения с промежуточным присвоением и
         # вычислением на месте
         element = DRIVER.find_element(*self.locator).id
         active = DRIVER.switch_to.active_element.id
@@ -872,7 +854,7 @@ class TestCase1():
         except TimeoutException:
             assert False, '1.0 Время загрузки страницы'
 
-        # longfixme наблюдение за перенаправлением не реализовано
+        # long FIXME наблюдение за перенаправлением не реализовано
         # Проверка только по факту конечнго url
         # Возможна реализация с помощью browsermob-proxy
 
@@ -894,7 +876,7 @@ class TestCase1():
         header.screenshot(id, '1_overview')
 
     # Link Ajenti
-        # fixme двойная проверка на название, первая в локаторе
+        # FIXME двойная проверка на название, первая в локаторе
         assert header.link_ajenti.text_get() == \
             'Ajenti', '1.1 Текст ссылки "Ajenti"'
         assert header.link_ajenti.link_adders() == \
@@ -902,7 +884,7 @@ class TestCase1():
 
         header.link_ajenti.click()
 
-        # longfixme перенаправление не реализовано
+        # long FIXME перенаправление не реализовано
         # Нет ожидания появления, фз нужно ли оно тут.
         assert DRIVER.current_url == \
             SCHEME + HOST_ADDRES + '/view/login/normal', '1.1 Перенаправление'
@@ -966,7 +948,7 @@ class TestCase1():
             icon_padlock_color['color'])
         assert content_login.icon_padlock.css('font-size') == '48px'
         # смысла особого нет так как значок  не меняется в элементе, \
-        # а проверять надо видимость но для разминки пойдет
+        # а проверять надо видимость что ниже, но для разминки пойдет
         # utf= py='\uf023' py_js_return='"\f023"' js_console="\"\uf023\""
         assert content_login.icon_padlock.css_js(
             '::before', 'content', '\uf023')
@@ -1198,7 +1180,8 @@ class TestCase1():
         content_login.button_login.click()
         content_login.button_login.screenshot(id, '7_click_on_activ_on')
         # проверка из иконка закрытый замок - при логине
-        assert content_login.icon_padlock_flip.is_visible()
+        assert content_login.icon_padlock_flip.is_visible(), \
+            'возможны ложные срабатывания, перезапусти тест'
         content_login.button_login.click()
         # становится неактивна
         assert content_login.button_login.attribute('disabled')
@@ -1230,12 +1213,14 @@ class TestCase1():
         content_login.button_login.click()
         # проверка из иконка закрытый замок - при логине
         # анимация вращения
-        assert content_login.icon_padlock_flip.is_visible()
+        assert content_login.icon_padlock_flip.is_visible(), \
+            'возможы ложные срабатывания, перезапусти тест'
         # иконка сменилась на символ \f13e открытый замок
         # анимация вращения
         # NOTE в chrome слишком быстрый переход не удается поймать is_visible
         # NOTE перепроверить в ручную
-        assert content_login.icon_padlock_unlock.is_visible()
+        assert content_login.icon_padlock_unlock.is_visible(), \
+            'возможны ложные срабатывания, перезапусти тест'
         # происходит логин
         # перенаправление на:
         assert WebDriverWait(DRIVER, DEFAULT_TIME) \
@@ -1318,10 +1303,3 @@ class TestCase1():
 
 # TODO и возможно добавить обертку для прямого доступа к методам и атрибутам
 # в принципе надо бы пречисать и стандартизировать имена функций\методов
-
-# судя по всему мнение ошибочное
-# TODO для конопок у которых аниация изменения цвета пороисходит путем
-# изменением видимости например бордера переработать детект цвета на детект
-# изменения бордера так как цвет остается не изменен и визуализируется путем
-# изменения ширины бордера с 0 на хх px цвет же при этом задан в коде стиля
-# и постоянен. Примеры таких кнопок это ресайз и логин
