@@ -461,12 +461,37 @@ def logout_ui():
         .is_displayed()
 
 
-def login_api(to_browser):
-    ...
+# TODO добавить переменную флаг о том что залогинены, и использовать для того \
+# что бы предотвращать попытку логина при уже совершенном логине
+def login_api(login, password, to_browser=False):
+    # json для передачи данных логина
+    data = {'mode': 'normal',
+            'username': login,
+            'password': password}
+    # запрос логина по пути, с данными в json
+    response_login = requests.post(url=URL+'/api/core/auth', json=data)
+    # если всё с запросом ок сервер ответит 200
+    assert response_login.status_code == 200
+    # проверяем успешность логина
+    if response_login.json()['success']:
+        ret = True
+        if to_browser:
+            cd = response_login.cookies.get_dict().popitem()
+            DRIVER.add_cookie({'name': cd[0], 'value': cd[1]})
+    else:
+        ret = False
 
-
-def logout_api():
-    ...
+    # а чо так можно было что ли?
+    def logout():
+        response_logout = requests.get(
+            url=URL+'/api/core/logout',
+            cookies=response_login.cookies)
+        if response_logout.status_code == 200:
+            return True
+        else:
+            return False
+    login_api.logout = logout
+    return ret
 
 
 # #############################################################################
@@ -729,12 +754,12 @@ class Field(Screenshot):
 
     # def in_put(self, text, key):
         # element = WebDriverWait(DRIVER, DEFAULT_TIME) \
-            # .until(lambda d: d.find_element(*self.locator))
+        #   .until(lambda d: d.find_element(*self.locator))
         # ActionChains(DRIVER) \
-            # .click(element) \
-            # .send_keys(text) \
-            # .send_keys(key) \
-            # .perform()
+        #   .click(element) \
+        #   .send_keys(text) \
+        #   .send_keys(key) \
+        #   .perform()
 
     def reset_wait_color(self, css, color):
         ActionChains(DRIVER).reset_actions()
@@ -841,6 +866,7 @@ class Menu():
 # Tests
 #
 # #############################################################################
+# @pytest.mark.class_ui
 class TestCase1():
     body = Body()
 
@@ -867,6 +893,7 @@ class TestCase1():
             .until(EC.title_is(HOST_NAME)), '1.0 Имя хоста в заголовке'
         self.body.screenshot(id, '1_overview')
 
+    @pytest.mark.login_header_ui
     def test_header_1_1(self):
         id = '1.1'
         header = Header()
@@ -927,6 +954,7 @@ class TestCase1():
         # Restore
         header.button_resize.click()
 
+    @pytest.mark.login_login_ui
     def test_content_login_1_2(self):
         id = '1.2'
         content_login = ContentLogin()
@@ -1232,6 +1260,7 @@ class TestCase1():
         # Resotre
         logout_ui()
 
+    @pytest.mark.login_login_ui
     # UI login\logout
     @pytest.mark.parametrize(
         'login',
@@ -1250,7 +1279,7 @@ class TestCase1():
             self.body.screenshot(id, '2_logout_'+login[0]+"_"+password[0])
         else:
             if login_ui(login[0], password[0]):
-                # check что бы сработал скриншот и разлогин со скриншотом
+                # check что бы сработал скриншот
                 # правда зачем этот скришот если его несчем сравнивать
                 # да и скриншоты тут не нужны по хорошему вот совсем
                 check.is_true(False, 'не логин при верных логине/пароле')
@@ -1263,6 +1292,7 @@ class TestCase1():
                     id, '4_logout_error_'+login[0]+"_"+password[0])
             self.body.screenshot(id, '5_login_not_'+login[0]+"_"+password[0])
 
+    @pytest.mark.login_api
     # API login\logout
     @pytest.mark.parametrize(
         'login',
@@ -1290,10 +1320,16 @@ class TestCase1():
                 'Логин не произошел хотя логин/пароль верные'
 
     # TODO автоматизировать обращение к api
-    # с\без данных верными\ошибочными данными кроме сами данных логина
+    # с\без данных верными\ошибочными данными кроме самих данных логина
     # есть ошибки!
 
-    # def test_login_page_1_5(self):
+    def test_login_page_1_5(self):
+        login_api('qwerty', 'qwerty', to_browser=True)
+        DRIVER.get(URL+'/view/dashboard')
+        time.sleep(5)
+        login_api.logout()
+        DRIVER.get(URL+'/view/dashboard')
+        time.sleep(5)
 
     # def test_(self):
         # self.test_header_1_1()
